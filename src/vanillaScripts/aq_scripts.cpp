@@ -127,7 +127,8 @@ public:
 
         void HandleWarStage()
         {
-            // Not handled in Individual Progression, so we go right to resetting the gate timer
+            // Implement war stage logic here if necessary
+            // For now, we'll just advance to the reset stage after a delay
             NextStage(5 * MINUTE * IN_MILLISECONDS);
         }
 
@@ -235,4 +236,5 @@ void AddSC_aq_scripts()
     new aq_gate();
     new gobject_scarab_gong();
 }
+
 

@@ -96,7 +96,7 @@ public:
             BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
             me->SetInCombatWithZone();
-            events.ScheduleEvent(EVENT_HATEFUL_STRIKE, 1200);
+            events.ScheduleEvent(EVENT_HATEFUL_STRIKE, 3000);
             events.ScheduleEvent(EVENT_BERSERK, 7 * 60 * 1000); // 7 minutes enrange
             events.ScheduleEvent(EVENT_HEALTH_CHECK, 1000);
         }
@@ -157,7 +157,7 @@ public:
                         {
                             me->CastSpell(finalTarget, SPELL_HATEFUL_STRIKE, false);
                         }
-                        events.RepeatEvent(1200);
+                        events.RepeatEvent(3000);
                         break;
                     }
                 case EVENT_BERSERK:

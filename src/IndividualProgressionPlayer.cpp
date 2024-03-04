@@ -26,6 +26,11 @@ public:
         {
             sIndividualProgression->UpdateProgressionState(player, static_cast<ProgressionState>(sIndividualProgression->startingProgression));
         }
+        // Dinkle: Cast very short stam buff on player on login to force update hp values on progression changes
+        if (player)
+        {
+            player->CastSpell(player, 881243, true);
+        }
         sIndividualProgression->CheckAdjustments(player);
     }
 
@@ -78,9 +83,9 @@ public:
             return false;
         }
         // Player is still in Vanilla content - give money at 60 level cap
-        return ((!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && player->getLevel() == 60) ||
-                // Player is in TBC content - give money at 70 level cap
-                (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->getLevel() == 70));
+        return ((!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && player->GetLevel() == 60) ||
+            // Player is in TBC content - give money at 70 level cap
+            (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() == 70));
     }
 
     void OnAfterUpdateMaxHealth(Player* player, float& value) override
@@ -99,10 +104,7 @@ public:
         // Player is still in Vanilla content - give Vanilla health adjustment
         if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40))
         {
-            float adjustmentAmount = 1.0f - sIndividualProgression->vanillaHealthAdjustment;
-            float applyPercent = ((player->getLevel() - 10.0f) / 50.0f);
-            float computedAdjustment = player->getLevel() > 10 ? 1.0f - applyPercent * adjustmentAmount : 1.0f;
-            value *= computedAdjustment;
+            value *= (sIndividualProgression->vanillaHealthAdjustment - gearAdjustment);
         }
             // Player is in TBC content - give TBC health adjustment
         else if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5))
@@ -140,7 +142,7 @@ public:
             return;
         }
         // Player is still in Vanilla content - do not give XP past level 60
-        if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && player->getLevel() >= 60)
+        if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && player->GetLevel() >= 60)
         {
             // Still award XP to pets - they won't be able to pass the player's level
             Pet* pet = player->GetPet();
@@ -149,7 +151,7 @@ public:
             amount = 0;
         }
             // Player is in TBC content - do not give XP past level 70
-        else if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->getLevel() >= 70)
+        else if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() >= 70)
         {
             // Still award XP to pets - they won't be able to pass the player's level
             Pet* pet = player->GetPet();
@@ -169,10 +171,10 @@ public:
         {
             return false;
         }
-        if (mapid == MAP_ZUL_GURUB && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_BLACKWING_LAIR))
-        {
-            return false;
-        }
+      //  if (mapid == MAP_ZUL_GURUB && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_MOLTEN_CORE))
+      //  {
+      //      return false;
+      //  }
         if (mapid == MAP_AQ_40 && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_PRE_AQ))
         {
             return false;
@@ -347,35 +349,48 @@ public:
     }
 
     void OnQueueRandomDungeon(Player* player, uint32& rDungeonId) override
-{
-    // List of exceptions for seasonal event dungeons
-    std::set<uint32> seasonalEventDungeons = { 285, 286, 287, 288 };
-    if (seasonalEventDungeons.find(rDungeonId) != seasonalEventDungeons.end())
     {
-        return;
+        // List of exceptions for seasonal event dungeons
+        std::set<uint32> seasonalEventDungeons = { 285, 286, 287, 288 };
+        if (seasonalEventDungeons.find(rDungeonId) != seasonalEventDungeons.end())
+        {
+            return;
+        }
+
+        // Check if RDF is disabled in the context of Individual Progression
+        if (sConfigMgr->GetOption<bool>("IndividualProgression.DisableRDF", false))
+        {
+            player->GetSession()->SendNotification("The Random Dungeon feature is currently disabled by the Individual Progression module.");
+            rDungeonId = 1000; // Set dungeon ID to an invalid value to cancel the queuing
+            return;
+        }
+
+        if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40))
+        {
+            rDungeonId = RDF_CLASSIC;
+        }
+        else if (rDungeonId == RDF_WRATH_OF_THE_LICH_KING && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5))
+        {
+            rDungeonId = RDF_THE_BURNING_CRUSADE;
+        }
+        else if (rDungeonId == RDF_WRATH_OF_THE_LICH_KING_HEROIC && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5))
+        {
+            rDungeonId = RDF_THE_BURNING_CRUSADE_HEROIC;
+        }
     }
 
-    // Check if RDF is disabled in the context of Individual Progression
-    if (sConfigMgr->GetOption<bool>("IndividualProgression.DisableRDF", false))
-    {
-        player->GetSession()->SendNotification("The Random Dungeon feature is currently disabled by the Individual Progression module.");
-        rDungeonId = 1000; // Set dungeon ID to an invalid value to cancel the queuing
-        return;
-    }
 
-    if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40))
+    bool CanJoinLfg(Player* player, uint8 roles, lfg::LfgDungeonSet& dungeons, const std::string& comment) override
     {
-        rDungeonId = RDF_CLASSIC;
+        // Check if LFG is disabled in the context of Individual Progression
+        if (sConfigMgr->GetOption<bool>("IndividualProgression.DisableLFG", false))
+        {
+            player->GetSession()->SendNotification("The Looking For Group feature is currently disabled by the Individual Progression module.");
+            return false; // Prevent the player from joining LFG
+        }
+
+        return true;
     }
-    else if (rDungeonId == RDF_WRATH_OF_THE_LICH_KING && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5))
-    {
-        rDungeonId = RDF_THE_BURNING_CRUSADE;
-    }
-    else if (rDungeonId == RDF_WRATH_OF_THE_LICH_KING_HEROIC && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5))
-    {
-        rDungeonId = RDF_THE_BURNING_CRUSADE_HEROIC;
-    }
-}
 
     bool CanEquipItem(Player* player, uint8 /*slot*/, uint16& /*dest*/, Item* pItem, bool /*swap*/, bool /*not_loading*/) override
     {
@@ -511,10 +526,10 @@ private:
     static void AdjustVanillaStats(Pet* pet)
     {
         float adjustmentValue = -100.0f * (1.0f - sIndividualProgression->vanillaPowerAdjustment);
-        float adjustmentApplyPercent = (pet->getLevel() - 10.0f) / 50.0f;
-        float computedAdjustment = pet->getLevel() > 10 ? (adjustmentValue * adjustmentApplyPercent) : 0;
+        float adjustmentApplyPercent = (pet->GetLevel() - 10.0f) / 50.0f;
+        float computedAdjustment = pet->GetLevel() > 10 ? (adjustmentValue * adjustmentApplyPercent) : 0;
         float hpAdjustmentValue = -100.0f * (1.0f - sIndividualProgression->vanillaHealthAdjustment);
-        float hpAdjustment = pet->getLevel() > 10 ? (hpAdjustmentValue * adjustmentApplyPercent) : 0;
+        float hpAdjustment = pet->GetLevel() > 10 ? (hpAdjustmentValue * adjustmentApplyPercent) : 0;
         AdjustStats(pet, computedAdjustment, hpAdjustment);
     }
 
@@ -522,9 +537,9 @@ private:
     {
         float adjustmentValue = -100.0f * (1.0f - sIndividualProgression->tbcPowerAdjustment);
         float adjustmentApplyPercent = 1;
-        float computedAdjustment = pet->getLevel() > 10 ? (adjustmentValue * adjustmentApplyPercent) : 0;
+        float computedAdjustment = pet->GetLevel() > 10 ? (adjustmentValue * adjustmentApplyPercent) : 0;
         float hpAdjustmentValue = -100.0f * (1.0f - sIndividualProgression->tbcHealthAdjustment);
-        float hpAdjustment = pet->getLevel() > 10 ? (hpAdjustmentValue * adjustmentApplyPercent) : 0;
+        float hpAdjustment = pet->GetLevel() > 10 ? (hpAdjustmentValue * adjustmentApplyPercent) : 0;
         AdjustStats(pet, computedAdjustment, hpAdjustment);
     }
 
@@ -600,7 +615,7 @@ public:
         float gearAdjustment = computeTotalGearTuning(player);
         if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40))
         {
-            heal *= (sIndividualProgression->ComputeVanillaAdjustment(player->getLevel(), sIndividualProgression->vanillaHealingAdjustment) - gearAdjustment);
+            heal *= (sIndividualProgression->ComputeVanillaAdjustment(player->GetLevel(), sIndividualProgression->vanillaHealingAdjustment) - gearAdjustment);
         }
         else if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5))
         {
@@ -625,7 +640,7 @@ public:
         float gearAdjustment = computeTotalGearTuning(player);
         if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40))
         {
-            damage *= (sIndividualProgression->ComputeVanillaAdjustment(player->getLevel(), sIndividualProgression->vanillaPowerAdjustment) - gearAdjustment);
+            damage *= (sIndividualProgression->ComputeVanillaAdjustment(player->GetLevel(), sIndividualProgression->vanillaPowerAdjustment) - gearAdjustment);
         }
         else if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5))
         {
@@ -651,7 +666,7 @@ public:
         float gearAdjustment = computeTotalGearTuning(player);
         if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40))
         {
-            damage *= (sIndividualProgression->ComputeVanillaAdjustment(player->getLevel(), sIndividualProgression->vanillaPowerAdjustment) - gearAdjustment);
+            damage *= (sIndividualProgression->vanillaPowerAdjustment - gearAdjustment);
         }
         else if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5))
         {
@@ -662,41 +677,7 @@ public:
             damage *= 1.0f - gearAdjustment;
         }
     }
-
-    void ModifyPeriodicDamageAurasTick(Unit* /*target*/, Unit* attacker, uint32& damage, SpellInfo const* spellInfo) override
-    {
-        if (!sIndividualProgression->enabled || !attacker)
-            return;
-
-        // Do not apply reductions to healing auras - these are already modified in the ModifyHeal hook
-        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
-        {
-            if (spellInfo->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA && spellInfo->Effects[j].ApplyAuraName == SPELL_AURA_PERIODIC_HEAL)
-            {
-                return;
-            }
-        }
-
-        bool isPet = attacker->GetOwner() && attacker->GetOwner()->GetTypeId() == TYPEID_PLAYER;
-        if (!isPet && attacker->GetTypeId() != TYPEID_PLAYER)
-        {
-            return;
-        }
-        Player* player = isPet ? attacker->GetOwner()->ToPlayer() : attacker->ToPlayer();
-        float gearAdjustment = computeTotalGearTuning(player);
-        if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40))
-        {
-            damage *= (sIndividualProgression->ComputeVanillaAdjustment(player->getLevel(), sIndividualProgression->vanillaPowerAdjustment) - gearAdjustment);
-        }
-        else if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5))
-        {
-            damage *= (sIndividualProgression->tbcPowerAdjustment - gearAdjustment);
-        }
-        else
-        {
-            damage *= 1.0f - gearAdjustment;
-        }
-    }};
+};
 
 void AddSC_mod_individual_progression_player()
 {

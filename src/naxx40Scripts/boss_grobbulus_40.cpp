@@ -25,33 +25,33 @@
 
 enum Spells
 {
-    SPELL_POISON_CLOUD                      = 28240,
-    SPELL_MUTATING_INJECTION                = 28169,
-    SPELL_MUTATING_EXPLOSION                = 28206,
-    SPELL_SLIME_SPRAY                       = 28157,
-    SPELL_POISON_CLOUD_DAMAGE_AURA          = 28158,
-    SPELL_BERSERK                           = 26662,
-    SPELL_BOMBARD_SLIME                     = 28280
+    SPELL_POISON_CLOUD = 828240,
+    SPELL_MUTATING_INJECTION = 828169,
+    SPELL_MUTATING_EXPLOSION = 828206,
+    SPELL_SLIME_SPRAY = 828157,
+    SPELL_POISON_CLOUD_DAMAGE_AURA = 828158,
+    SPELL_BERSERK = 26662,
+    SPELL_BOMBARD_SLIME = 828280
 };
 
 enum Emotes
 {
-    EMOTE_SLIME                             = 0
+    EMOTE_SLIME = 0
 };
 
 enum Events
 {
-    EVENT_BERSERK                           = 1,
-    EVENT_POISON_CLOUD                      = 2,
-    EVENT_SLIME_SPRAY                       = 3,
-    EVENT_MUTATING_INJECTION                = 4
+    EVENT_BERSERK = 1,
+    EVENT_POISON_CLOUD = 2,
+    EVENT_SLIME_SPRAY = 3,
+    EVENT_MUTATING_INJECTION = 4
 };
 
 enum Misc
 {
-    NPC_FALLOUT_SLIME                       = 351067,
-    NPC_SEWAGE_SLIME                        = 351071,
-    NPC_STICHED_GIANT                       = 351027
+    NPC_FALLOUT_SLIME = 351067,
+    NPC_SEWAGE_SLIME = 351071,
+    NPC_STICHED_GIANT = 351027
 };
 
 class boss_grobbulus_40 : public CreatureScript
@@ -100,7 +100,7 @@ public:
             PullChamberAdds();
             me->SetInCombatWithZone();
             events.ScheduleEvent(EVENT_POISON_CLOUD, 15000);
-            events.ScheduleEvent(EVENT_MUTATING_INJECTION, 12000);
+            events.ScheduleEvent(EVENT_MUTATING_INJECTION, 20000);
             events.ScheduleEvent(EVENT_SLIME_SPRAY, 10000);
             events.ScheduleEvent(EVENT_BERSERK, 12 * 60 * 1000);  // 12 minute enrage
         }
@@ -127,7 +127,7 @@ public:
             summons.Despawn(summon);
         }
 
-        void JustDied(Unit*  killer) override
+        void JustDied(Unit* killer) override
         {
             BossAI::JustDied(killer);
             summons.DespawnAll();
@@ -162,25 +162,25 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case EVENT_POISON_CLOUD:
-                    me->CastSpell(me, SPELL_POISON_CLOUD, true);
-                    events.RepeatEvent(15000);
-                    break;
-                case EVENT_BERSERK:
-                    me->CastSpell(me, SPELL_BERSERK, true);
-                    break;
-                case EVENT_SLIME_SPRAY:
-                    Talk(EMOTE_SLIME);
-                    me->CastSpell(me->GetVictim(), SPELL_SLIME_SPRAY, false);
-                    events.RepeatEvent(20000);
-                    break;
-                case EVENT_MUTATING_INJECTION:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true, true, -SPELL_MUTATING_INJECTION))
-                    {
-                        me->CastSpell(target, SPELL_MUTATING_INJECTION, false);
-                    }
-                    events.RepeatEvent(6000 + uint32(120 * me->GetHealthPct()));
-                    break;
+            case EVENT_POISON_CLOUD:
+                me->CastSpell(me, SPELL_POISON_CLOUD, true);
+                events.RepeatEvent(15000);
+                break;
+            case EVENT_BERSERK:
+                me->CastSpell(me, SPELL_BERSERK, true);
+                break;
+            case EVENT_SLIME_SPRAY:
+                Talk(EMOTE_SLIME);
+                me->CastSpell(me->GetVictim(), SPELL_SLIME_SPRAY, false);
+                events.RepeatEvent(20000);
+                break;
+            case EVENT_MUTATING_INJECTION:
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true, true, -SPELL_MUTATING_INJECTION))
+                {
+                    me->CastSpell(target, SPELL_MUTATING_INJECTION, false);
+                }
+                events.RepeatEvent(20000); // Schedule the next injection to occur after 20 seconds
+                break;
             }
             DoMeleeAttackIfReady();
         }
@@ -275,52 +275,55 @@ public:
     }
 };
 
-class spell_grobbulus_mutating_injection : public SpellScriptLoader
+class spell_grobbulus_mutating_injection_40 : public SpellScriptLoader
 {
-    public:
-        spell_grobbulus_mutating_injection() : SpellScriptLoader("spell_grobbulus_mutating_injection") { }
+public:
+    spell_grobbulus_mutating_injection_40() : SpellScriptLoader("spell_grobbulus_mutating_injection_40") { }
 
-        class spell_grobbulus_mutating_injection_AuraScript : public AuraScript
+    class spell_grobbulus_mutating_injection_40_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_grobbulus_mutating_injection_40_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            PrepareAuraScript(spell_grobbulus_mutating_injection_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_MUTATING_EXPLOSION });
-            }
-
-            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                switch (GetTargetApplication()->GetRemoveMode())
-                {
-                    case AURA_REMOVE_BY_ENEMY_SPELL:
-                    case AURA_REMOVE_BY_EXPIRE:
-                        if (auto caster = GetCaster())
-                        {
-                            caster->CastSpell(GetTarget(), SPELL_MUTATING_EXPLOSION, true);
-                        }
-                        break;
-                    default:
-                        return;
-                }
-            }
-
-            void Register() override
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_grobbulus_mutating_injection_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_grobbulus_mutating_injection_AuraScript();
+            return ValidateSpellInfo({ SPELL_MUTATING_EXPLOSION });
         }
+
+        void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            switch (GetTargetApplication()->GetRemoveMode())
+            {
+            case AURA_REMOVE_BY_ENEMY_SPELL:
+            case AURA_REMOVE_BY_EXPIRE:
+                if (auto caster = GetCaster())
+                {
+                    caster->CastSpell(GetTarget(), SPELL_MUTATING_EXPLOSION, true);
+                }
+                break;
+            default:
+                return;
+            }
+        }
+
+        void Register() override
+        {
+            AfterEffectRemove += AuraEffectRemoveFn(spell_grobbulus_mutating_injection_40_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_grobbulus_mutating_injection_40_AuraScript();
+    }
 };
+
 
 void AddSC_boss_grobbulus_40()
 {
     new boss_grobbulus_40();
     new boss_grobbulus_poison_cloud_40();
-//    new spell_grobbulus_mutating_injection();
-//    new spell_grobbulus_poison();
+    new spell_grobbulus_mutating_injection_40();
+    //    new spell_grobbulus_poison();
 }
+
+

@@ -34,8 +34,8 @@ enum Says
 enum Spells
 {
     SPELL_SPELL_DISRUPTION          = 29310,
-    SPELL_DECREPIT_FEVER            = 29998,
-    SPELL_PLAGUE_CLOUD              = 29350,
+    SPELL_DECREPIT_FEVER            = 829998,
+    SPELL_PLAGUE_CLOUD              = 829350,
     SPELL_TELEPORT_SELF             = 30211
 };
 
@@ -140,7 +140,7 @@ public:
                 events.ScheduleEvent(EVENT_DISRUPTION, urand(12000, 15000));
                 events.ScheduleEvent(EVENT_DECEPIT_FEVER, 17000);
                 events.ScheduleEvent(EVENT_ERUPT_SECTION, 15000);
-                events.ScheduleEvent(EVENT_SWITCH_PHASE, 90000);
+                events.ScheduleEvent(EVENT_SWITCH_PHASE, 55000);
             }
             else // if (phase == PHASE_FAST_DANCE)
             {
@@ -184,11 +184,11 @@ public:
             {
                 case EVENT_DISRUPTION:
                     me->CastSpell(me, SPELL_SPELL_DISRUPTION, false);
-                    events.RepeatEvent(10000);
+                    events.RepeatEvent(14000);
                     break;
                 case EVENT_DECEPIT_FEVER:
                     me->CastSpell(me, SPELL_DECREPIT_FEVER, false);
-                    events.RepeatEvent(urand(22000, 25000));
+                    events.RepeatEvent(urand(25000, 29000));
                     break;
                 case EVENT_PLAGUE_CLOUD:
                     me->CastSpell(me, SPELL_PLAGUE_CLOUD, false);

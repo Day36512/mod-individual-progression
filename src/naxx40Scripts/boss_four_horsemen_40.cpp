@@ -26,29 +26,29 @@ enum Spells
 {
     SPELL_BERSERK                       = 26662,
     // Marks
-    SPELL_MARK_OF_KORTHAZZ              = 28832,
-    SPELL_MARK_OF_BLAUMEUX              = 28833,
-    SPELL_MARK_OF_MOGRAINE              = 28834, // TODO: Requires Spell DBC Edit
-    SPELL_MARK_OF_ZELIEK                = 28835,
-    SPELL_MARK_DAMAGE                   = 28836,
+    SPELL_MARK_OF_KORTHAZZ              = 828832,
+    SPELL_MARK_OF_BLAUMEUX              = 828833,
+    SPELL_MARK_OF_MOGRAINE              = 828834, 
+    SPELL_MARK_OF_ZELIEK                = 828835,
+    SPELL_MARK_DAMAGE                   = 828836,
     // Korth'azz
     SPELL_KORTHAZZ_METEOR_10            = 28884,
-    SPELL_KORTHAZZ_METEOR_25            = 57467,
+    SPELL_KORTHAZZ_METEOR_25            = 28884,
     // Blaumeux
-    SPELL_BLAUMEUX_SHADOW_BOLT_10       = 57374,
-    SPELL_BLAUMEUX_SHADOW_BOLT_25       = 57464,
+    SPELL_BLAUMEUX_SHADOW_BOLT_10       = 857374,
+    SPELL_BLAUMEUX_SHADOW_BOLT_25       = 857374,
     SPELL_BLAUMEUX_VOID_ZONE_10         = 28863,
     SPELL_BLAUMEUX_VOID_ZONE_25         = 57463,
-    SPELL_BLAUMEUX_UNYIELDING_PAIN      = 57381,
+    SPELL_BLAUMEUX_UNYIELDING_PAIN      = 857381,
     // Zeliek
-    SPELL_ZELIEK_HOLY_WRATH_10          = 28883,
-    SPELL_ZELIEK_HOLY_WRATH_25          = 57466,
-    SPELL_ZELIEK_HOLY_BOLT_10           = 57376,
-    SPELL_ZELIEK_HOLY_BOLT_25           = 57465,
-    SPELL_ZELIEK_CONDEMNATION           = 57377,
+    SPELL_ZELIEK_HOLY_WRATH_10          = 828883,
+    SPELL_ZELIEK_HOLY_WRATH_25          = 828883,
+    SPELL_ZELIEK_HOLY_BOLT_10           = 857376,
+    SPELL_ZELIEK_HOLY_BOLT_25           = 857376,
+    SPELL_ZELIEK_CONDEMNATION           = 857377,
     // Mograine
-    SPELL_RIVENDARE_UNHOLY_SHADOW_10    = 28882,
-    SPELL_RIVENDARE_UNHOLY_SHADOW_25    = 57369
+    SPELL_RIVENDARE_UNHOLY_SHADOW_10    = 828882,
+    SPELL_RIVENDARE_UNHOLY_SHADOW_25    = 828882
 };
 
 enum Events
@@ -201,7 +201,6 @@ public:
             }
             else
             {
-                events.RescheduleEvent(EVENT_PUNISH, 5000);
                 events.RescheduleEvent(EVENT_SECONDARY_SPELL, 15000);
             }
             if (pInstance)
@@ -348,25 +347,29 @@ public:
                     me->CastSpell(me->GetVictim(), RAID_MODE(TABLE_SPELL_PRIMARY_10[horsemanId], TABLE_SPELL_PRIMARY_25[horsemanId]), false);
                     events.RepeatEvent(15000);
                     return;
-                case EVENT_PUNISH:
-                    if (!SelectTarget(SelectTargetMethod::MaxDistance, 0, 45.0f, true))
-                    {
-                        me->CastSpell(me, TABLE_SPELL_PUNISH[horsemanId], false);
-                        Talk(EMOTE_RAGECAST);
-                    }
-                    events.RepeatEvent(2010);
-                    return;
                 case EVENT_SECONDARY_SPELL:
                     me->CastSpell(me->GetVictim(), RAID_MODE(TABLE_SPELL_SECONDARY_10[horsemanId], TABLE_SPELL_SECONDARY_25[horsemanId]), false);
                     events.RepeatEvent(15000);
                     return;
             }
 
-            if ((me->GetEntry() == NPC_LADY_BLAUMEUX_40 || me->GetEntry() == NPC_SIR_ZELIEK_40))
+            if (me->GetEntry() == NPC_LADY_BLAUMEUX_40 || me->GetEntry() == NPC_SIR_ZELIEK_40)
             {
-                if (Unit* target = SelectTarget(SelectTargetMethod::MaxDistance, 0, 45.0f, true))
+                if (Unit* pTarget = me->SelectNearestTarget(300.0f))
                 {
-                    me->CastSpell(target, RAID_MODE(TABLE_SPELL_PRIMARY_10[horsemanId], TABLE_SPELL_PRIMARY_25[horsemanId]), false);
+                    if (pTarget && me->IsValidAttackTarget(pTarget))
+                    {
+                        AttackStart(pTarget);
+                    }
+                }
+                if (me->IsWithinDistInMap(me->GetVictim(), 45.0f) && me->IsValidAttackTarget(me->GetVictim()))
+                {
+                    DoCastVictim(RAID_MODE(TABLE_SPELL_PRIMARY_10[horsemanId], TABLE_SPELL_PRIMARY_25[horsemanId]));
+                }
+                else if (!me->IsWithinDistInMap(me->GetVictim(), 45.0f) || !me->IsValidAttackTarget(me->GetVictim()))
+                {
+                    DoCastAOE(TABLE_SPELL_PUNISH[horsemanId]);
+                    Talk(EMOTE_RAGECAST);
                 }
             }
             else
@@ -377,14 +380,14 @@ public:
     };
 };
 
-class spell_four_horsemen_mark : public SpellScriptLoader
+class spell_four_horsemen_mark_40 : public SpellScriptLoader
 {
 public:
-    spell_four_horsemen_mark() : SpellScriptLoader("spell_four_horsemen_mark") { }
+    spell_four_horsemen_mark_40() : SpellScriptLoader("spell_four_horsemen_mark_40") { }
 
-    class spell_four_horsemen_mark_AuraScript : public AuraScript
+    class spell_four_horsemen_mark_40_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_four_horsemen_mark_AuraScript);
+        PrepareAuraScript(spell_four_horsemen_mark_40_AuraScript);
 
         void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
@@ -397,22 +400,22 @@ public:
                         damage = 0;
                         break;
                     case 2:
-                        damage = 500;
+                        damage = 250;
                         break;
                     case 3:
-                        damage = 1500;
+                        damage = 500;
                         break;
                     case 4:
-                        damage = 4000;
+                        damage = 750;
                         break;
                     case 5:
-                        damage = 12000;
+                        damage = 1000;
                         break;
                     case 6:
-                        damage = 20000;
+                        damage = 1500;
                         break;
                     default:
-                        damage = 20000 + 1000 * (GetStackAmount() - 7);
+                        damage = 1500 + 500 * (GetStackAmount() - 7);
                         break;
                 }
                 if (damage)
@@ -424,13 +427,13 @@ public:
 
         void Register() override
         {
-            AfterEffectApply += AuraEffectApplyFn(spell_four_horsemen_mark_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            AfterEffectApply += AuraEffectApplyFn(spell_four_horsemen_mark_40_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         }
     };
 
     AuraScript* GetAuraScript() const override
     {
-        return new spell_four_horsemen_mark_AuraScript();
+        return new spell_four_horsemen_mark_40_AuraScript();
     }
 };
 
@@ -453,6 +456,6 @@ class spell_four_horsemen_consumption : public SpellScript
 void AddSC_boss_four_horsemen_40()
 {
     new boss_four_horsemen_40();
-//    new spell_four_horsemen_mark();
+    new spell_four_horsemen_mark_40();
 //    RegisterSpellScript(spell_four_horsemen_consumption);
 }

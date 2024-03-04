@@ -708,21 +708,21 @@ public:
             return (GetBossState(BOSS_MAEXXNA) == DONE) && (GetBossState(BOSS_LOATHEB) == DONE) && (GetBossState(BOSS_THADDIUS) == DONE) && (GetBossState(BOSS_HORSEMAN) == DONE);
         }
 
-        bool CheckRequiredBosses(uint32 bossId, Player const* /* player */) const override
+    bool CheckRequiredBosses(uint32 bossId, Player const* /* player */) const override
+    {
+        switch (bossId)
         {
-            switch (bossId)
-            {
-                case BOSS_SAPPHIRON:
-                    if (!AreAllWingsCleared())
-                    {
-                        return false;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            return true;
+            case BOSS_SAPPHIRON:
+                if (!AreAllWingsCleared())
+                {
+                    //return false;
+                }
+                break;
+            default:
+                break;
         }
+        return true;
+    }
 
         void Load(const char* data) override
         {
@@ -1365,13 +1365,51 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go) override
     {
-        if ((!sIndividualProgression->requireNaxxStrath || player->GetQuestStatus(NAXX40_ENTRANCE_FLAG) == QUEST_STATUS_REWARDED) && isAttuned(player))
+        // Determine the player's difficulty based on whether they are in a group
+        Difficulty playerDifficulty = player->GetGroup() ? player->GetGroup()->GetRaidDifficulty() : player->GetRaidDifficulty();
+
+        // Level 80 players don't need attunement
+        if (player->GetLevel() == 80)
         {
-            player->SetRaidDifficulty(RAID_DIFFICULTY_10MAN_HEROIC);
-            player->TeleportTo(533, 3005.51f, -3434.64f, 304.195f, 6.2831f);
+            if (playerDifficulty == RAID_DIFFICULTY_10MAN_NORMAL || playerDifficulty == RAID_DIFFICULTY_25MAN_NORMAL)
+            {
+                player->TeleportTo(533, 3005.51f, -3434.64f, 304.195f, 6.2831f);
+            }
+            else
+            {
+                ChatHandler(player->GetSession()).PSendSysMessage("You are level 80 but your raid difficulty is not set to 10 or 25-Man Normal. Please change your difficulty.");
+                return false;
+            }
+        }
+        // Handle level 60 players who require attunement
+        else if (player->GetLevel() == 60)
+        {
+            if ((!sIndividualProgression->requireNaxxStrath || player->GetQuestStatus(NAXX40_ENTRANCE_FLAG) == QUEST_STATUS_REWARDED) && isAttuned(player))
+            {
+                if (playerDifficulty == RAID_DIFFICULTY_10MAN_HEROIC)
+                {
+                    player->TeleportTo(533, 3005.51f, -3434.64f, 304.195f, 6.2831f);
+                }
+                else
+                {
+                    ChatHandler(player->GetSession()).PSendSysMessage("You are level 60 but your raid difficulty is not set to 10-Man Heroic in order to enter. Please change your raid difficulty. If you continue to have issues, please leave group, reform, and set your difficulty to 10H.");
+                    return false;
+                }
+            }
+            else
+            {
+                ChatHandler(player->GetSession()).PSendSysMessage("You do not meet the attunement requirements to enter Naxxramas.");
+                return false;
+            }
+        }
+        else
+        {
+            ChatHandler(player->GetSession()).PSendSysMessage("You do not meet the level or attunement requirements to enter Naxxramas.");
+            return false;
         }
         return true;
     }
+
 };
 
 class NaxxPlayerScript : public PlayerScript

@@ -19,6 +19,10 @@
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "onyxias_lair.h"
+#include "Chat.h" 
+#include "Group.h"
+#include "Map.h" 
+
 
 ObjectData const creatureData[] =
         {
@@ -130,14 +134,41 @@ public:
 class onyxia_entrance_trigger : public AreaTriggerScript
 {
 public:
-    onyxia_entrance_trigger() : AreaTriggerScript("onyxia_entrance_trigger") { }
+    onyxia_entrance_trigger() : AreaTriggerScript("onyxia_entrance_trigger") {}
 
     bool OnTrigger(Player* player, AreaTrigger const* /*areaTrigger*/) override
     {
-        if (player->getLevel() < 80)
+        // Determine the player's difficulty based on whether they are in a group
+        Difficulty playerDifficulty;
+        if (Group* group = player->GetGroup())
         {
-            player->SetRaidDifficulty(RAID_DIFFICULTY_10MAN_HEROIC);
+            playerDifficulty = group->GetRaidDifficulty();
         }
+        else
+        {
+            // For solo players, use their personal raid difficulty setting
+            playerDifficulty = player->GetRaidDifficulty();
+        }
+
+        // Handle level 80 players
+        if (player->GetLevel() == 80)
+        {
+            if (playerDifficulty != RAID_DIFFICULTY_10MAN_NORMAL && playerDifficulty != RAID_DIFFICULTY_25MAN_NORMAL)
+            {
+                ChatHandler(player->GetSession()).PSendSysMessage("Your raid difficulty is not set to 10 or 25-Man Normal. Please change the difficulty to enter Onyxia's Lair. If you continue to have issues, leave group, rejoin and set your raid difficulty to 10 or 25.");
+                return false;
+            }
+        }
+        else if (player->GetLevel() == 60) // Handle level 60 players
+        {
+            if (playerDifficulty != RAID_DIFFICULTY_10MAN_HEROIC)
+            {
+                ChatHandler(player->GetSession()).PSendSysMessage("Your raid difficulty is not set to 10-Man Heroic. Please change the difficulty to enter Level 60 Onyxia's Lair. If you continue to have issues, leave group, rejoin and set your raid difficulty to 10H.");
+                return false;
+            }
+        }
+
+        // Teleport the player if they can enter the instance
         if (!sMapMgr->PlayerCannotEnter(249, player, true))
         {
             player->TeleportTo(249, 29.1607f, -71.3372f, -8.18032f, 4.58f);

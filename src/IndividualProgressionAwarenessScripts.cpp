@@ -109,7 +109,7 @@ class npc_ipp_tbc_t5 : public CreatureScript
 public:
     npc_ipp_tbc_t5() : CreatureScript("npc_ipp_tbc_t5") { }
 
-    struct npc_ipp_tbc_t5AI: ScriptedAI
+    struct npc_ipp_tbc_t5AI : ScriptedAI
     {
         explicit npc_ipp_tbc_t5AI(Creature* creature) : ScriptedAI(creature) { };
 

@@ -42,8 +42,8 @@ enum Yells
 enum Spells
 {
     // Kel'Thzuad
-    SPELL_FROST_BOLT_SINGLE                 = 28478,
-    SPELL_FROST_BOLT_MULTI                  = 28479,
+    SPELL_FROST_BOLT_SINGLE                 = 828478,
+    SPELL_FROST_BOLT_MULTI                  = 828479,
     SPELL_SHADOW_FISURE                     = 27810,
     SPELL_VOID_BLAST                        = 27812,
     SPELL_DETONATE_MANA                     = 27819,
@@ -387,10 +387,10 @@ public:
                     me->SetReactState(REACT_AGGRESSIVE);
                     events.ScheduleEvent(EVENT_FROST_BOLT_SINGLE, urand(2000, 10000));
                     events.ScheduleEvent(EVENT_FROST_BOLT_MULTI, urand(15000, 30000));
-                    events.ScheduleEvent(EVENT_DETONATE_MANA, 30000);
+                    events.ScheduleEvent(EVENT_DETONATE_MANA, 35000);
                     events.ScheduleEvent(EVENT_PHASE_3, 1000);
-                    events.ScheduleEvent(EVENT_SHADOW_FISSURE, 25000);
-                    events.ScheduleEvent(EVENT_FROST_BLAST, 45000);
+                    events.ScheduleEvent(EVENT_SHADOW_FISSURE, 30000);
+                    events.ScheduleEvent(EVENT_FROST_BLAST, 60000);
                     if (Is25ManRaid())
                     {
                         events.ScheduleEvent(EVENT_CHAINS, 90000);
@@ -410,9 +410,13 @@ public:
                 case EVENT_SHADOW_FISSURE:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                     {
-                        me->CastSpell(target, SPELL_SHADOW_FISURE, false);
+                        // Check if target does not have SPELL_FROST_BLAST active
+                        if (!target->HasAura(SPELL_FROST_BLAST))
+                        {
+                            me->CastSpell(target, SPELL_SHADOW_FISURE, false);
+                        }
                     }
-                    events.RepeatEvent(25000);
+                    events.Repeat(25s);
                     break;
                 case EVENT_FROST_BLAST:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0, true))
@@ -423,7 +427,7 @@ public:
                     events.RepeatEvent(45000);
                     break;
                 case EVENT_CHAINS:
-                    for (uint8 i = 0; i < 3; ++i)
+                    for (uint8 i = 0; i < 2; ++i)
                     {
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 200, true, true, -SPELL_CHAINS_OF_KELTHUZAD))
                         {

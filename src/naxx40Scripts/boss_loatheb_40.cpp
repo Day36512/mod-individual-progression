@@ -22,9 +22,9 @@
 enum Spells
 {
     SPELL_NECROTIC_AURA                         = 55593,
-    SPELL_SUMMON_SPORE                          = 29234,
-    SPELL_DEATHBLOOM                            = 29865,
-    SPELL_INEVITABLE_DOOM                       = 29204,
+    SPELL_SUMMON_SPORE                          = 829234,
+    SPELL_DEATHBLOOM                            = 829865,
+    SPELL_INEVITABLE_DOOM                       = 829204,
     SPELL_BERSERK                               = 26662
 };
 
@@ -115,7 +115,7 @@ public:
             events.ScheduleEvent(EVENT_DEATHBLOOM, 5000);
             events.ScheduleEvent(EVENT_INEVITABLE_DOOM, 120000);
             events.ScheduleEvent(EVENT_SUMMON_SPORE, 15000);
-            events.ScheduleEvent(EVENT_BERSERK, 720000);
+            events.ScheduleEvent(EVENT_BERSERK, 480000);
             if (pInstance)
             {
                 pInstance->SetData(BOSS_LOATHEB, IN_PROGRESS);
@@ -160,7 +160,7 @@ public:
                     break;
                 case EVENT_DEATHBLOOM:
                     me->CastSpell(me, SPELL_DEATHBLOOM, false);
-                    events.RepeatEvent(30000);
+                    events.RepeatEvent(12000);
                     break;
                 case EVENT_INEVITABLE_DOOM:
                     me->CastSpell(me, SPELL_INEVITABLE_DOOM, false);

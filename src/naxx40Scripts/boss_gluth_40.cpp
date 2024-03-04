@@ -115,9 +115,9 @@ public:
             events.ScheduleEvent(EVENT_MORTAL_WOUND, 10000);
             events.ScheduleEvent(EVENT_ENRAGE, 22000);
             events.ScheduleEvent(EVENT_DECIMATE, 105000);
-            events.ScheduleEvent(EVENT_BERSERK, 360000);
-            events.ScheduleEvent(EVENT_SUMMON_ZOMBIE, 10000);
-            events.ScheduleEvent(EVENT_CAN_EAT_ZOMBIE, 1000);
+            events.ScheduleEvent(EVENT_BERSERK, 720000);
+            events.ScheduleEvent(EVENT_SUMMON_ZOMBIE, 15000);
+            events.ScheduleEvent(EVENT_CAN_EAT_ZOMBIE, 3000);
         }
 
         void JustSummoned(Creature* summon) override
@@ -224,11 +224,11 @@ public:
                     me->SummonCreature(NPC_ZOMBIE_CHOW, zombiePos[urand(0, 2)]);
                     (rand == 2 ? rand = 0 : rand++);
                 }
-                events.RepeatEvent(10000);
+                events.RepeatEvent(15000);
                 break;
             }
             case EVENT_CAN_EAT_ZOMBIE:
-                events.RepeatEvent(1000);
+                events.RepeatEvent(3000);
                 if (me->GetVictim() && me->GetVictim()->GetEntry() == NPC_ZOMBIE_CHOW && me->IsWithinMeleeRange(me->GetVictim()))
                 {
                     if (me->GetVictim()->GetHealth() > 0) // Check if the zombie is alive

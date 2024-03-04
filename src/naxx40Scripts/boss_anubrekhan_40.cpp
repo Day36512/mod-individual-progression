@@ -21,48 +21,47 @@
 
 enum Says
 {
-    SAY_AGGRO                       = 0,
-    SAY_GREET                       = 1,
-    SAY_SLAY                        = 2,
-    EMOTE_LOCUST                    = 3
+    SAY_AGGRO = 0,
+    SAY_GREET = 1,
+    SAY_SLAY = 2,
+    EMOTE_LOCUST = 3
 };
 
 enum GuardSays
 {
-    EMOTE_SPAWN                     = 1,
-    EMOTE_SCARAB                    = 2
+    EMOTE_SPAWN = 1,
+    EMOTE_SCARAB = 2
 };
 
 enum Spells
 {
-    SPELL_IMPALE                    = 28783,
-    SPELL_LOCUST_SWARM              = 28785,
-    SPELL_LOCUST_SWARM_TRIGGER      = 28786, // periodic effect 
-    SPELL_SUMMON_CORPSE_SCRABS_5    = 90001, // Changed from 29105 to Level 60 Mob ID for summon
-    SPELL_SUMMON_CORPSE_SCRABS_10   = 90002, //  Changed from 29105 to Level 60 Mob ID for summon
-    SPELL_BERSERK                   = 26662
+    SPELL_IMPALE = 28783,
+    SPELL_LOCUST_SWARM = 828785,
+    SPELL_SUMMON_CORPSE_SCRABS_5 = 90001, // Changed from 29105 to Level 60 Mob ID for summon
+    SPELL_SUMMON_CORPSE_SCRABS_10 = 90002, //  Changed from 29105 to Level 60 Mob ID for summon
+    SPELL_BERSERK = 26662
 };
 
 enum SpellValues : int32
 {
-    IMPALE_BP1                      = 3937,
-    IMPALE_BP2                      = 299
+    IMPALE_BP1 = 3937,
+    IMPALE_BP2 = 299
 };
 
 enum Events
 {
-    EVENT_IMPALE                    = 1,
-    EVENT_LOCUST_SWARM              = 2,
-    EVENT_BERSERK                   = 3,
-    EVENT_SPAWN_GUARD               = 4
+    EVENT_IMPALE = 1,
+    EVENT_LOCUST_SWARM = 2,
+    EVENT_BERSERK = 3,
+    EVENT_SPAWN_GUARD = 4
 };
 
 enum Misc
 {
-    NPC_CORPSE_SCARAB               = 351083,
-    NPC_CRYPT_GUARD                 = 351082,
+    NPC_CORPSE_SCARAB = 351083,
+    NPC_CRYPT_GUARD = 351082,
 
-    ACHIEV_TIMED_START_EVENT        = 9891
+    ACHIEV_TIMED_START_EVENT = 9891
 };
 
 class boss_anubrekhan_40 : public CreatureScript
@@ -94,6 +93,7 @@ public:
             me->SummonCreature(NPC_CRYPT_GUARD, 3299.086f, -3450.929f, 287.077f, 3.999f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
         }
 
+
         void Reset() override
         {
             BossAI::Reset();
@@ -111,19 +111,19 @@ public:
 
         void JustSummoned(Creature* cr) override
         {
-                if (me->IsInCombat())
-                {
+            if (me->IsInCombat())
+            {
                 cr->SetInCombatWithZone(); // This line will set the creature in combat with the zone.
                 if (cr->GetEntry() == NPC_CRYPT_GUARD)
                 {
-                     cr->AI()->Talk(EMOTE_SPAWN, me);
+                    cr->AI()->Talk(EMOTE_SPAWN, me);
                 }
                 else if (cr->GetEntry() == NPC_CORPSE_SCARAB) // Explicitly check for Corpse Scarabs here.
                 {
-                     cr->SetInCombatWithZone(); // Set the Corpse Scarabs in combat with the zone too.
+                    cr->SetInCombatWithZone(); // Set the Corpse Scarabs in combat with the zone too.
                 }
-             }
-             summons.Summon(cr);
+            }
+            summons.Summon(cr);
         }
 
         void SummonedCreatureDies(Creature* cr, Unit*) override
@@ -140,7 +140,7 @@ public:
             summons.Despawn(cr);
         }
 
-        void JustDied(Unit*  killer) override
+        void JustDied(Unit* killer) override
         {
             BossAI::JustDied(killer);
             summons.DespawnAll();
@@ -224,34 +224,29 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case EVENT_IMPALE:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                    {
-                        int32 bp1 = IMPALE_BP1;
-                        int32 bp2 = IMPALE_BP2;
-                        me->CastCustomSpell(target, SPELL_IMPALE, 0, &bp1, &bp2, false, nullptr, nullptr, ObjectGuid::Empty);
-                    }
-                    events.RepeatEvent(20000);
-                    break;
-                case EVENT_LOCUST_SWARM:
+            case EVENT_IMPALE:
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
-                    Talk(EMOTE_LOCUST);
-                    // Set damage for periodic trigger effect to a random value between 875 and 1125
-                    int32 modifiedLocustSwarmDamage = urand(875, 1125);
-                    me->CastSpell(me, SPELL_LOCUST_SWARM, false);
-                    // Update the periodic trigger effect with custom damage
-                    me->CastCustomSpell(me, SPELL_LOCUST_SWARM_TRIGGER, &modifiedLocustSwarmDamage, nullptr, nullptr, true, nullptr, nullptr, me->GetGUID());
-
-                    events.ScheduleEvent(EVENT_SPAWN_GUARD, 3000);
-                    events.RepeatEvent(90000);
-                    break;
+                    int32 bp1 = IMPALE_BP1;
+                    int32 bp2 = IMPALE_BP2;
+                    me->CastCustomSpell(target, SPELL_IMPALE, 0, &bp1, &bp2, false, nullptr, nullptr, ObjectGuid::Empty);
                 }
-                case EVENT_SPAWN_GUARD:
-                    me->SummonCreature(NPC_CRYPT_GUARD, 3331.217f, -3476.607f, 287.074f, 3.269f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
-                    break; 
-                case EVENT_BERSERK:
-                    me->CastSpell(me, SPELL_BERSERK, true);
-                    break;
+                events.RepeatEvent(20000);
+                break;
+            case EVENT_LOCUST_SWARM:
+            {
+                Talk(EMOTE_LOCUST);
+                me->CastSpell(me, SPELL_LOCUST_SWARM, false);
+                events.ScheduleEvent(EVENT_SPAWN_GUARD, 3000);
+                events.RepeatEvent(90000);
+                break;
+            }
+            case EVENT_SPAWN_GUARD:
+                me->SummonCreature(NPC_CRYPT_GUARD, 3331.217f, -3476.607f, 287.074f, 3.269f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+                break;
+            case EVENT_BERSERK:
+                me->CastSpell(me, SPELL_BERSERK, true);
+                break;
             }
             DoMeleeAttackIfReady();
         }

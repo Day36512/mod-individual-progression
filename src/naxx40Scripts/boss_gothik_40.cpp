@@ -24,93 +24,93 @@
 
 enum Yells
 {
-    SAY_INTRO_1                     = 0,
-    SAY_INTRO_2                     = 1,
-    SAY_INTRO_3                     = 2,
-    SAY_INTRO_4                     = 3,
-    SAY_PHASE_TWO                   = 4,
-    SAY_DEATH                       = 5,
-    SAY_KILL                        = 6,
+    SAY_INTRO_1 = 0,
+    SAY_INTRO_2 = 1,
+    SAY_INTRO_3 = 2,
+    SAY_INTRO_4 = 3,
+    SAY_PHASE_TWO = 4,
+    SAY_DEATH = 5,
+    SAY_KILL = 6,
 
-    EMOTE_PHASE_TWO                 = 7,
-    EMOTE_GATE_OPENED               = 8
+    EMOTE_PHASE_TWO = 7,
+    EMOTE_GATE_OPENED = 8
 };
 
 enum Spells
 {
     // Gothik
-    SPELL_HARVEST_SOUL              = 28679,
-    SPELL_SHADOW_BOLT               = 29317,
+    SPELL_HARVEST_SOUL = 28679,
+    SPELL_SHADOW_BOLT = 829317,
     // Teleport spells
-    SPELL_TELEPORT_DEAD             = 28025,
-    SPELL_TELEPORT_LIVE             = 28026,
+    SPELL_TELEPORT_DEAD = 28025,
+    SPELL_TELEPORT_LIVE = 28026,
     //  Visual spells
-    SPELL_INFORM_LIVING_TRAINEE     = 27892,
-    SPELL_INFORM_LIVING_KNIGHT      = 27928,
-    SPELL_INFORM_LIVING_RIDER       = 27935,
-    SPELL_INFORM_DEAD_TRAINEE       = 27915,
-    SPELL_INFORM_DEAD_KNIGHT        = 27931,
-    SPELL_INFORM_DEAD_RIDER         = 27937,
+    SPELL_INFORM_LIVING_TRAINEE = 27892,
+    SPELL_INFORM_LIVING_KNIGHT = 27928,
+    SPELL_INFORM_LIVING_RIDER = 27935,
+    SPELL_INFORM_DEAD_TRAINEE = 27915,
+    SPELL_INFORM_DEAD_KNIGHT = 27931,
+    SPELL_INFORM_DEAD_RIDER = 27937,
     /*SPELL_ANCHOR_2_TRAINEE          = 27893,
     SPELL_ANCHOR_2_DK               = 27929,
     SPELL_ANCHOR_2_RIDER            = 27936, fix me */
     // Living trainee
-    SPELL_DEATH_PLAGUE              = 55604,
+    SPELL_DEATH_PLAGUE = 55604,
     // Dead trainee
-    SPELL_ARCANE_EXPLOSION          = 27989,
+    SPELL_ARCANE_EXPLOSION = 27989,
     // Living knight
-    SPELL_SHADOW_MARK               = 27825,
+    SPELL_SHADOW_MARK = 27825,
     // Dead knight
-    SPELL_WHIRLWIND                 = 56408,
+    SPELL_WHIRLWIND = 56408,
     // Living rider
-    SPELL_SHADOW_BOLT_VOLLEY        = 27831,
+    SPELL_SHADOW_BOLT_VOLLEY = 27831,
     // Dead rider
-    SPELL_DRAIN_LIFE                = 27994,
-    SPELL_UNHOLY_FRENZY             = 55648,
+    SPELL_DRAIN_LIFE = 27994,
+    SPELL_UNHOLY_FRENZY = 55648,
     // Horse
-    SPELL_STOMP                     = 27993
+    SPELL_STOMP = 27993
 };
 
 enum Misc
 {
-    NPC_LIVING_TRAINEE              = 351043,
-    NPC_LIVING_KNIGHT               = 351044,
-    NPC_LIVING_RIDER                = 351045,
-    NPC_DEAD_TRAINEE                = 351046,
-    NPC_DEAD_KNIGHT                 = 351050,
-    NPC_DEAD_HORSE                  = 351051,
-    NPC_DEAD_RIDER                  = 351052,
+    NPC_LIVING_TRAINEE = 351043,
+    NPC_LIVING_KNIGHT = 351044,
+    NPC_LIVING_RIDER = 351045,
+    NPC_DEAD_TRAINEE = 351046,
+    NPC_DEAD_KNIGHT = 351050,
+    NPC_DEAD_HORSE = 351051,
+    NPC_DEAD_RIDER = 351052,
     //NPC_TRIGGER                     = 16137, fix me
 };
 
 enum Events
 {
     // Gothik
-    EVENT_SUMMON_ADDS               = 1,
-    EVENT_HARVEST_SOUL              = 2,
-    EVENT_SHADOW_BOLT               = 3,
-    EVENT_TELEPORT                  = 4,
-    EVENT_CHECK_HEALTH              = 5,
-    EVENT_CHECK_PLAYERS             = 6,
+    EVENT_SUMMON_ADDS = 1,
+    EVENT_HARVEST_SOUL = 2,
+    EVENT_SHADOW_BOLT = 3,
+    EVENT_TELEPORT = 4,
+    EVENT_CHECK_HEALTH = 5,
+    EVENT_CHECK_PLAYERS = 6,
     // Living trainee
-    EVENT_DEATH_PLAGUE              = 7,
+    EVENT_DEATH_PLAGUE = 7,
     // Dead trainee
-    EVENT_ARCANE_EXPLOSION          = 8,
+    EVENT_ARCANE_EXPLOSION = 8,
     // Living knight
-    EVENT_SHADOW_MARK               = 9,
+    EVENT_SHADOW_MARK = 9,
     // Dead knight
-    EVENT_WHIRLWIND                 = 10,
+    EVENT_WHIRLWIND = 10,
     // Living rider
-    EVENT_SHADOW_BOLT_VOLLEY        = 11,
+    EVENT_SHADOW_BOLT_VOLLEY = 11,
     // Dead rider
-    EVENT_DRAIN_LIFE                = 12,
-    EVENT_UNHOLY_FRENZY             = 13,
+    EVENT_DRAIN_LIFE = 12,
+    EVENT_UNHOLY_FRENZY = 13,
     // HORSE
-    EVENT_STOMP                     = 14,
+    EVENT_STOMP = 14,
     // Intro
-    EVENT_INTRO_2                   = 15,
-    EVENT_INTRO_3                   = 16,
-    EVENT_INTRO_4                   = 17
+    EVENT_INTRO_2 = 15,
+    EVENT_INTRO_3 = 16,
+    EVENT_INTRO_4 = 17
 };
 
 const uint32 gothikWaves[24][2] =
@@ -223,7 +223,22 @@ public:
         {
             BossAI::Reset();
             events.Reset();
+
+            // Despawn all summons related to Gothik
             summons.DespawnAll();
+
+            // Explicitly despawn dead side NPCs
+            std::vector<uint32> deadSideNpcs = { NPC_DEAD_TRAINEE, NPC_DEAD_KNIGHT, NPC_DEAD_HORSE, NPC_DEAD_RIDER };
+            for (uint32 npcId : deadSideNpcs)
+            {
+                std::list<Creature*> creatures;
+                me->GetCreatureListWithEntryInGrid(creatures, npcId, 250.0f);
+                for (Creature* creature : creatures)
+                {
+                        creature->DespawnOrUnsummon();
+                }
+            }
+
             me->RemoveUnitFlag(UNIT_FLAG_DISABLE_MOVE);
             me->SetImmuneToPC(false);
             me->SetReactState(REACT_PASSIVE);
@@ -247,6 +262,7 @@ public:
                 }
             }
         }
+
 
         void JustEngagedWith(Unit* who) override
         {
@@ -303,7 +319,7 @@ public:
             }
         }
 
-        void JustDied(Unit*  killer) override
+        void JustDied(Unit* killer) override
         {
             BossAI::JustDied(killer);
             Talk(SAY_DEATH);
@@ -327,26 +343,26 @@ public:
 
         void SummonHelpers(uint32 entry)
         {
-            switch(entry)
+            switch (entry)
             {
-                case NPC_LIVING_TRAINEE:
-                    me->SummonCreature(NPC_LIVING_TRAINEE, PosSummonLiving[0].GetPositionX(), PosSummonLiving[0].GetPositionY(), PosSummonLiving[0].GetPositionZ(), PosSummonLiving[0].GetOrientation());
-                    me->SummonCreature(NPC_LIVING_TRAINEE, PosSummonLiving[1].GetPositionX(), PosSummonLiving[1].GetPositionY(), PosSummonLiving[1].GetPositionZ(), PosSummonLiving[1].GetOrientation());
-                    if (Is25ManRaid())
-                    {
-                        me->SummonCreature(NPC_LIVING_TRAINEE, PosSummonLiving[2].GetPositionX(), PosSummonLiving[2].GetPositionY(), PosSummonLiving[2].GetPositionZ(), PosSummonLiving[2].GetOrientation());
-                    }
-                    break;
-                case NPC_LIVING_KNIGHT:
-                    me->SummonCreature(NPC_LIVING_KNIGHT, PosSummonLiving[3].GetPositionX(), PosSummonLiving[3].GetPositionY(), PosSummonLiving[3].GetPositionZ(), PosSummonLiving[3].GetOrientation());
-                    if (Is25ManRaid())
-                    {
-                        me->SummonCreature(NPC_LIVING_KNIGHT, PosSummonLiving[5].GetPositionX(), PosSummonLiving[5].GetPositionY(), PosSummonLiving[5].GetPositionZ(), PosSummonLiving[5].GetOrientation());
-                    }
-                    break;
-                case NPC_LIVING_RIDER:
-                    me->SummonCreature(NPC_LIVING_RIDER, PosSummonLiving[4].GetPositionX(), PosSummonLiving[4].GetPositionY(), PosSummonLiving[4].GetPositionZ(), PosSummonLiving[4].GetOrientation());
-                    break;
+            case NPC_LIVING_TRAINEE:
+                me->SummonCreature(NPC_LIVING_TRAINEE, PosSummonLiving[0].GetPositionX(), PosSummonLiving[0].GetPositionY(), PosSummonLiving[0].GetPositionZ(), PosSummonLiving[0].GetOrientation());
+                me->SummonCreature(NPC_LIVING_TRAINEE, PosSummonLiving[1].GetPositionX(), PosSummonLiving[1].GetPositionY(), PosSummonLiving[1].GetPositionZ(), PosSummonLiving[1].GetOrientation());
+                if (Is25ManRaid())
+                {
+                    me->SummonCreature(NPC_LIVING_TRAINEE, PosSummonLiving[2].GetPositionX(), PosSummonLiving[2].GetPositionY(), PosSummonLiving[2].GetPositionZ(), PosSummonLiving[2].GetOrientation());
+                }
+                break;
+            case NPC_LIVING_KNIGHT:
+                me->SummonCreature(NPC_LIVING_KNIGHT, PosSummonLiving[3].GetPositionX(), PosSummonLiving[3].GetPositionY(), PosSummonLiving[3].GetPositionZ(), PosSummonLiving[3].GetOrientation());
+                if (Is25ManRaid())
+                {
+                    me->SummonCreature(NPC_LIVING_KNIGHT, PosSummonLiving[5].GetPositionX(), PosSummonLiving[5].GetPositionY(), PosSummonLiving[5].GetPositionZ(), PosSummonLiving[5].GetOrientation());
+                }
+                break;
+            case NPC_LIVING_RIDER:
+                me->SummonCreature(NPC_LIVING_RIDER, PosSummonLiving[4].GetPositionX(), PosSummonLiving[4].GetPositionY(), PosSummonLiving[4].GetPositionZ(), PosSummonLiving[4].GetOrientation());
+                break;
             }
         }
 
@@ -365,17 +381,17 @@ public:
                         player->GetPositionX() >= POS_X_SOUTH &&
                         player->GetPositionY() <= POS_Y_GATE &&
                         player->GetPositionY() >= POS_Y_EAST)
-                        {
-                            checklife = true;
-                        }
+                    {
+                        checklife = true;
+                    }
                     else if (player->IsAlive() &&
-                             player->GetPositionX() <= POS_X_NORTH &&
-                             player->GetPositionX() >= POS_X_SOUTH &&
-                             player->GetPositionY() >= POS_Y_GATE &&
-                             player->GetPositionY() <= POS_Y_WEST)
-                             {
-                                 checkdead = true;
-                             }
+                        player->GetPositionX() <= POS_X_NORTH &&
+                        player->GetPositionX() >= POS_X_SOUTH &&
+                        player->GetPositionY() >= POS_Y_GATE &&
+                        player->GetPositionY() <= POS_Y_WEST)
+                    {
+                        checkdead = true;
+                    }
 
                     if (checklife && checkdead)
                         return true;
@@ -389,16 +405,16 @@ public:
             uint8 pos = urand(0, 4);
             switch (spellInfo->Id)
             {
-                case SPELL_INFORM_LIVING_TRAINEE:
-                    me->SummonCreature(NPC_DEAD_TRAINEE, PosSummonDead[pos].GetPositionX(), PosSummonDead[pos].GetPositionY(), PosSummonDead[pos].GetPositionZ(), PosSummonDead[pos].GetOrientation());
-                    break;
-                case SPELL_INFORM_LIVING_KNIGHT:
-                    me->SummonCreature(NPC_DEAD_KNIGHT, PosSummonDead[pos].GetPositionX(), PosSummonDead[pos].GetPositionY(), PosSummonDead[pos].GetPositionZ(), PosSummonDead[pos].GetOrientation());
-                    break;
-                case SPELL_INFORM_LIVING_RIDER:
-                    me->SummonCreature(NPC_DEAD_RIDER, PosSummonDead[pos].GetPositionX(), PosSummonDead[pos].GetPositionY(), PosSummonDead[pos].GetPositionZ(), PosSummonDead[pos].GetOrientation());
-                    me->SummonCreature(NPC_DEAD_HORSE, PosSummonDead[pos].GetPositionX(), PosSummonDead[pos].GetPositionY(), PosSummonDead[pos].GetPositionZ(), PosSummonDead[pos].GetOrientation());
-                    break;
+            case SPELL_INFORM_LIVING_TRAINEE:
+                me->SummonCreature(NPC_DEAD_TRAINEE, PosSummonDead[pos].GetPositionX(), PosSummonDead[pos].GetPositionY(), PosSummonDead[pos].GetPositionZ(), PosSummonDead[pos].GetOrientation());
+                break;
+            case SPELL_INFORM_LIVING_KNIGHT:
+                me->SummonCreature(NPC_DEAD_KNIGHT, PosSummonDead[pos].GetPositionX(), PosSummonDead[pos].GetPositionY(), PosSummonDead[pos].GetPositionZ(), PosSummonDead[pos].GetOrientation());
+                break;
+            case SPELL_INFORM_LIVING_RIDER:
+                me->SummonCreature(NPC_DEAD_RIDER, PosSummonDead[pos].GetPositionX(), PosSummonDead[pos].GetPositionY(), PosSummonDead[pos].GetPositionZ(), PosSummonDead[pos].GetOrientation());
+                me->SummonCreature(NPC_DEAD_HORSE, PosSummonDead[pos].GetPositionX(), PosSummonDead[pos].GetPositionY(), PosSummonDead[pos].GetPositionZ(), PosSummonDead[pos].GetOrientation());
+                break;
             }
             me->HandleEmoteCommand(EMOTE_ONESHOT_SPELL_CAST);
         }
@@ -425,89 +441,89 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case EVENT_INTRO_2:
-                    Talk(SAY_INTRO_2);
-                    break;
-                case EVENT_INTRO_3:
-                    Talk(SAY_INTRO_3);
-                    break;
-                case EVENT_INTRO_4:
-                    Talk(SAY_INTRO_4);
-                    break;
-                case EVENT_SHADOW_BOLT:
-                    me->CastSpell(me->GetVictim(), SPELL_SHADOW_BOLT, false);
-                    events.RepeatEvent(1010);
-                    break;
-                case EVENT_HARVEST_SOUL:
-                    me->CastSpell(me, SPELL_HARVEST_SOUL, false);
-                    events.RepeatEvent(15000);
-                    break;
-                case EVENT_TELEPORT:
-                    me->AttackStop();
-                    if (IN_LIVE_SIDE(me))
+            case EVENT_INTRO_2:
+                Talk(SAY_INTRO_2);
+                break;
+            case EVENT_INTRO_3:
+                Talk(SAY_INTRO_3);
+                break;
+            case EVENT_INTRO_4:
+                Talk(SAY_INTRO_4);
+                break;
+            case EVENT_SHADOW_BOLT:
+                me->CastSpell(me->GetVictim(), SPELL_SHADOW_BOLT, false);
+                events.RepeatEvent(1010);
+                break;
+            case EVENT_HARVEST_SOUL:
+                me->CastSpell(me, SPELL_HARVEST_SOUL, false);
+                events.RepeatEvent(15000);
+                break;
+            case EVENT_TELEPORT:
+                me->AttackStop();
+                if (IN_LIVE_SIDE(me))
+                {
+                    me->CastSpell(me, SPELL_TELEPORT_DEAD, false);
+                }
+                else
+                {
+                    me->CastSpell(me, SPELL_TELEPORT_LIVE, false);
+                }
+                me->GetThreatMgr().resetAggro(NotOnSameSide(me));
+                if (Unit* pTarget = SelectTarget(SelectTargetMethod::MaxDistance, 0))
+                {
+                    me->GetThreatMgr().AddThreat(pTarget, 100.0f);
+                    AttackStart(pTarget);
+                }
+                events.RepeatEvent(20000);
+                break;
+            case EVENT_CHECK_HEALTH:
+                if (me->HealthBelowPct(30) && pInstance)
+                {
+                    if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_GOTHIK_INNER_GATE)))
                     {
-                        me->CastSpell(me, SPELL_TELEPORT_DEAD, false);
+                        go->SetGoState(GO_STATE_ACTIVE);
                     }
-                    else
-                    {
-                        me->CastSpell(me, SPELL_TELEPORT_LIVE, false);
-                    }
-                    me->GetThreatMgr().resetAggro(NotOnSameSide(me));
-                    if (Unit* pTarget = SelectTarget(SelectTargetMethod::MaxDistance, 0))
-                    {
-                        me->GetThreatMgr().AddThreat(pTarget, 100.0f);
-                        AttackStart(pTarget);
-                    }
-                    events.RepeatEvent(20000);
+                    events.CancelEvent(EVENT_TELEPORT);
                     break;
-                case EVENT_CHECK_HEALTH:
-                    if (me->HealthBelowPct(30) && pInstance)
+                }
+                events.RepeatEvent(1000);
+                break;
+            case EVENT_SUMMON_ADDS:
+                if (gothikWaves[waveCount][0])
+                {
+                    SummonHelpers(gothikWaves[waveCount][0]);
+                    events.RepeatEvent(gothikWaves[waveCount][1]);
+                }
+                else
+                {
+                    secondPhase = true;
+                    Talk(SAY_PHASE_TWO);
+                    Talk(EMOTE_PHASE_TWO);
+                    me->CastSpell(me, SPELL_TELEPORT_LIVE, false);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->RemoveUnitFlag(UNIT_FLAG_DISABLE_MOVE);
+                    me->SetImmuneToPC(false);
+                    me->RemoveAllAuras();
+                    summons.DoZoneInCombat();
+                    events.ScheduleEvent(EVENT_SHADOW_BOLT, 1000);
+                    events.ScheduleEvent(EVENT_HARVEST_SOUL, urand(5000, 15000));
+                    events.ScheduleEvent(EVENT_TELEPORT, 20000);
+                    events.ScheduleEvent(EVENT_CHECK_HEALTH, 1000);
+                }
+                waveCount++;
+                break;
+            case EVENT_CHECK_PLAYERS:
+                if (!CheckGroupSplitted())
+                {
+                    if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_GOTHIK_INNER_GATE)))
                     {
-                        if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_GOTHIK_INNER_GATE)))
-                        {
-                            go->SetGoState(GO_STATE_ACTIVE);
-                        }
-                        events.CancelEvent(EVENT_TELEPORT);
-                        break;
+                        go->SetGoState(GO_STATE_ACTIVE);
                     }
-                    events.RepeatEvent(1000);
-                    break;
-                case EVENT_SUMMON_ADDS:
-                    if (gothikWaves[waveCount][0])
-                    {
-                        SummonHelpers(gothikWaves[waveCount][0]);
-                        events.RepeatEvent(gothikWaves[waveCount][1]);
-                    }
-                    else
-                    {
-                        secondPhase = true;
-                        Talk(SAY_PHASE_TWO);
-                        Talk(EMOTE_PHASE_TWO);
-                        me->CastSpell(me, SPELL_TELEPORT_LIVE, false);
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveUnitFlag(UNIT_FLAG_DISABLE_MOVE);
-                        me->SetImmuneToPC(false);
-                        me->RemoveAllAuras();
-                        summons.DoZoneInCombat();
-                        events.ScheduleEvent(EVENT_SHADOW_BOLT, 1000);
-                        events.ScheduleEvent(EVENT_HARVEST_SOUL, urand(5000, 15000));
-                        events.ScheduleEvent(EVENT_TELEPORT, 20000);
-                        events.ScheduleEvent(EVENT_CHECK_HEALTH, 1000);
-                    }
-                    waveCount++;
-                    break;
-                case EVENT_CHECK_PLAYERS:
-                    if (!CheckGroupSplitted())
-                    {
-                        if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_GOTHIK_INNER_GATE)))
-                        {
-                            go->SetGoState(GO_STATE_ACTIVE);
-                        }
-                        summons.DoZoneInCombat();
-                        gateOpened = true;
-                        Talk(EMOTE_GATE_OPENED);
-                    }
-                    break;
+                    summons.DoZoneInCombat();
+                    gateOpened = true;
+                    Talk(EMOTE_GATE_OPENED);
+                }
+                break;
             }
             DoMeleeAttackIfReady();
         }
@@ -545,28 +561,28 @@ public:
         {
             switch (me->GetEntry())
             {
-                case NPC_LIVING_TRAINEE:
-                    events.ScheduleEvent(EVENT_DEATH_PLAGUE, 3000);
-                    break;
-                case NPC_DEAD_TRAINEE:
-                    events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 2500);
-                    break;
-                case NPC_LIVING_KNIGHT:
-                    events.ScheduleEvent(EVENT_SHADOW_MARK, 3000);
-                    break;
-                case NPC_DEAD_KNIGHT:
-                    events.ScheduleEvent(EVENT_WHIRLWIND, 2000);
-                    break;
-                case NPC_LIVING_RIDER:
-                    events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 3000);
-                    break;
-                case NPC_DEAD_RIDER:
-                    events.ScheduleEvent(EVENT_DRAIN_LIFE, urand(2000, 3500));
-                    events.ScheduleEvent(EVENT_UNHOLY_FRENZY, urand(5000, 9000));
-                    break;
-                case NPC_DEAD_HORSE:
-                    events.ScheduleEvent(EVENT_STOMP, urand(2000, 5000));
-                    break;
+            case NPC_LIVING_TRAINEE:
+                events.ScheduleEvent(EVENT_DEATH_PLAGUE, 3000);
+                break;
+            case NPC_DEAD_TRAINEE:
+                events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 2500);
+                break;
+            case NPC_LIVING_KNIGHT:
+                events.ScheduleEvent(EVENT_SHADOW_MARK, 3000);
+                break;
+            case NPC_DEAD_KNIGHT:
+                events.ScheduleEvent(EVENT_WHIRLWIND, 2000);
+                break;
+            case NPC_LIVING_RIDER:
+                events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 3000);
+                break;
+            case NPC_DEAD_RIDER:
+                events.ScheduleEvent(EVENT_DRAIN_LIFE, urand(2000, 3500));
+                events.ScheduleEvent(EVENT_UNHOLY_FRENZY, urand(5000, 9000));
+                break;
+            case NPC_DEAD_HORSE:
+                events.ScheduleEvent(EVENT_STOMP, urand(2000, 5000));
+                break;
             }
         }
 
@@ -588,15 +604,15 @@ public:
         {
             switch (me->GetEntry())
             {
-                case NPC_LIVING_TRAINEE:
-                    me->CastSpell(me, SPELL_INFORM_LIVING_TRAINEE, true);
-                    break;
-                case NPC_LIVING_KNIGHT:
-                    me->CastSpell(me, SPELL_INFORM_LIVING_KNIGHT, true);
-                    break;
-                case NPC_LIVING_RIDER:
-                    me->CastSpell(me, SPELL_INFORM_LIVING_RIDER, true);
-                    break;
+            case NPC_LIVING_TRAINEE:
+                me->CastSpell(me, SPELL_INFORM_LIVING_TRAINEE, true);
+                break;
+            case NPC_LIVING_KNIGHT:
+                me->CastSpell(me, SPELL_INFORM_LIVING_KNIGHT, true);
+                break;
+            case NPC_LIVING_RIDER:
+                me->CastSpell(me, SPELL_INFORM_LIVING_RIDER, true);
+                break;
             }
         }
 
@@ -616,68 +632,68 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case EVENT_DEATH_PLAGUE:
-                    me->CastSpell(me->GetVictim(), SPELL_DEATH_PLAGUE, false);
-                    events.RepeatEvent(urand(4000, 7000));
-                    break;
-                case EVENT_ARCANE_EXPLOSION:
-                    if (Unit* victim = me->GetVictim())
+            case EVENT_DEATH_PLAGUE:
+                me->CastSpell(me->GetVictim(), SPELL_DEATH_PLAGUE, false);
+                events.RepeatEvent(urand(4000, 7000));
+                break;
+            case EVENT_ARCANE_EXPLOSION:
+                if (Unit* victim = me->GetVictim())
+                {
+                    if (victim->IsWithinDist(me, 20))
                     {
-                        if (victim->IsWithinDist(me, 20))
-                        {
-                            me->CastSpell(victim, SPELL_ARCANE_EXPLOSION, false);
-                        }
+                        me->CastSpell(victim, SPELL_ARCANE_EXPLOSION, false);
                     }
-                    events.RepeatEvent(2500);
-                    break;
-                case EVENT_SHADOW_MARK:
-                    if (Unit* victim = me->GetVictim())
+                }
+                events.RepeatEvent(2500);
+                break;
+            case EVENT_SHADOW_MARK:
+                if (Unit* victim = me->GetVictim())
+                {
+                    if (!victim->HasAura(SPELL_SHADOW_MARK))
                     {
-                        if (!victim->HasAura(SPELL_SHADOW_MARK))
-                        {
-                            me->CastSpell(me->GetVictim(), SPELL_SHADOW_MARK, false);
-                        }
+                        me->CastSpell(me->GetVictim(), SPELL_SHADOW_MARK, false);
                     }
-                    events.RepeatEvent(urand(5000, 7000));
-                    break;
-                case EVENT_WHIRLWIND:
-                    if (Unit* victim = me->GetVictim())
+                }
+                events.RepeatEvent(urand(5000, 7000));
+                break;
+            case EVENT_WHIRLWIND:
+                if (Unit* victim = me->GetVictim())
+                {
+                    if (victim->IsWithinDist(me, 10))
                     {
-                        if (victim->IsWithinDist(me, 10))
-                        {
-                            me->CastSpell(victim, SPELL_WHIRLWIND, false);
-                        }
+                        me->CastSpell(victim, SPELL_WHIRLWIND, false);
                     }
-                    events.RepeatEvent(urand(4000, 6000));
-                    break;
-                case EVENT_SHADOW_BOLT_VOLLEY:
-                    me->CastSpell(me->GetVictim(), SPELL_SHADOW_BOLT_VOLLEY, false);
-                    events.RepeatEvent(5000);
-                    break;
-                case EVENT_DRAIN_LIFE:
-                    if (Unit* victim = me->GetVictim())
+                }
+                events.RepeatEvent(urand(4000, 6000));
+                break;
+            case EVENT_SHADOW_BOLT_VOLLEY:
+                me->CastSpell(me->GetVictim(), SPELL_SHADOW_BOLT_VOLLEY, false);
+                events.RepeatEvent(5000);
+                break;
+            case EVENT_DRAIN_LIFE:
+                if (Unit* victim = me->GetVictim())
+                {
+                    if (victim->IsWithinDist(me, 20))
                     {
-                        if (victim->IsWithinDist(me, 20))
-                        {
-                            me->CastSpell(victim, SPELL_DRAIN_LIFE, false);
-                        }
+                        me->CastSpell(victim, SPELL_DRAIN_LIFE, false);
                     }
-                    events.RepeatEvent(urand(8000, 12000));
-                    break;
-                case EVENT_UNHOLY_FRENZY:
-                    me->AddAura(SPELL_UNHOLY_FRENZY, me);
-                    events.RepeatEvent(urand(15000, 17000));
-                    break;
-                case EVENT_STOMP:
-                    if (Unit* victim = me->GetVictim())
+                }
+                events.RepeatEvent(urand(8000, 12000));
+                break;
+            case EVENT_UNHOLY_FRENZY:
+                me->AddAura(SPELL_UNHOLY_FRENZY, me);
+                events.RepeatEvent(urand(15000, 17000));
+                break;
+            case EVENT_STOMP:
+                if (Unit* victim = me->GetVictim())
+                {
+                    if (victim->IsWithinDist(me, 10))
                     {
-                        if (victim->IsWithinDist(me, 10))
-                        {
-                            me->CastSpell(victim, SPELL_STOMP, false);
-                        }
+                        me->CastSpell(victim, SPELL_STOMP, false);
                     }
-                    events.RepeatEvent(urand(4000, 9000));
-                    break;
+                }
+                events.RepeatEvent(urand(4000, 9000));
+                break;
             }
             DoMeleeAttackIfReady();
         }
@@ -714,5 +730,5 @@ void AddSC_boss_gothik_40()
 {
     new boss_gothik_40();
     new npc_boss_gothik_minion_40();
-//    new spell_gothik_shadow_bolt_volley();
+    //    new spell_gothik_shadow_bolt_volley();
 }

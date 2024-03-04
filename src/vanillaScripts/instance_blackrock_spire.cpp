@@ -828,13 +828,13 @@ public:
 
                 // If LFG, UBRS door always closed
                 bool canOpenDoor = true;
-                if (Group const* group = player->GetGroup())
-                {
-                    if (sLFGMgr->IsLfgGroup(group->GetGUID()))
-                    {
-                        canOpenDoor = false;
-                    }
-                }
+               // if (Group const* group = player->GetGroup())
+               // {
+               //     if (sLFGMgr->IsLfgGroup(group->GetGUID()))
+               //     {
+               //         canOpenDoor = false;
+               //     }
+               // }
 
                 if (canOpenDoor && player->HasItemCount(ITEM_SEAL_OF_ASCENSION, 1))
                 {
